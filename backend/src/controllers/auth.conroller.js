@@ -63,13 +63,39 @@ export const signup = async (req,res) =>{
     // res.send("signup router");
 }
 
-export const login = (req,res) =>{
+export const login = async (req,res) =>{
     const {email,password} = req.body
 
     
     try {
-        res.send("login router");
+        const user = await User.findOne({email})
+
+        if(!user){
+            return res.status(400).json({
+                message:"invalid credientials"
+            });
+        }
+
+       const isPasswordCorrect =  await bcrypt.compare(password,user.password);
+
+       if(!isPasswordCorrect){
+        return res.status(400).json({
+            message: "invalid credentials"
+        });
+       }
+
+       generateToken(user._id,res)
+
+       res.status(200).json( {
+        _id:user._id,
+        fullName : user.fullName,
+        email: user.email,
+        profilePic:user.profilePic,
+       })
+
+
     } catch (error) {
+     console.log("Error in login controller ",error.message);
         
     }
 
