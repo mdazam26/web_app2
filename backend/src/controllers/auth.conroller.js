@@ -1,62 +1,79 @@
-// import { generateToken } from "../lib/utils.js";
-// import User from "../models/user.model.js"
+import { generateToken } from "../lib/utils.js";
+import User from "../models/user.model.js"
 import bcrypt from "bcryptjs"
 
 export const signup = async (req,res) =>{
-    // const {fullName,email,password} = req.body
-    // try {
-    //     // hash password
-    //      if(password.lenght < 6){
-    //         return (res.status(400).json({
-    //             message: "Password must be at least 6 characters "
-    //         }));
-    //      }
+    const {fullName,email,password} = req.body
+    try {
 
-    //      const user  = await User.findOne({email})
+        if(!fullName || !email || !password){
+            return res.status(400).json({
+                message: "All fields are required"
+            });
+        }
 
-    //      if (user) return res.status(400).json({
-    //         message : "Email already exists"
-    //      });
+        // hash password
+         if(password.length < 6){
+            return (res.status(400).json({
+                message: "Password must be at least 6 characters "
+            }));
+         }
 
-    //      const salt = await bcrypt.genSalt(10)
+         const user  = await User.findOne({email})
 
-    //      const hashedPassword = await bcrypt.hash(password,salt);
+         if (user) return res.status(400).json({
+            message : "Email already exists"
+         });
 
-    //      const newUser = new User({
-    //         fullName,
-    //         email,
-    //         password:hashedPassword
-    //      })
+         const salt = await bcrypt.genSalt(10)
 
-    //      if(newUser){
-    //         generateToken(newUser._id,res)
-    //         await newUser.save();
+         const hashedPassword = await bcrypt.hash(password,salt);
 
-    //         res.status(201).json({
-    //             _id : newUser._id,
-    //             fullName : newUser.fullName,
-    //             email: newUser.email,
-    //             profilePic: newUser.profilePic,
-    //         });
-    //      }
-    //      else{
-    //         res.status(400).json({
-    //             message:"invalid user data"
-    //         });
-    //      }
+         const newUser = new User({
+            fullName,
+            email,
+            password:hashedPassword
+         })
 
-    // } catch (error) {
-    //     console.log("Error is signup controller ",error.message);
-    //     res.status(500).json({
-    //         message: "Internal Server Error"
-    //     });
-    // }
+         if(newUser){
+            //generate JWT token
+            generateToken(newUser._id,res)
+            await newUser.save();
 
-    res.send("signup router");
+            res.status(201).json({
+                _id : newUser._id,
+                fullName : newUser.fullName,
+                email: newUser.email,
+                profilePic: newUser.profilePic,
+            });
+         }
+         else{
+            res.status(400).json({
+                message:"invalid user data"
+            });
+         }
+
+    } catch (error) {
+        console.log("Error is signup controller ",error.message);
+        res.status(500).json({
+            message: "Internal Server Error"
+        });
+    }
+
+    // res.send("signup router");
 }
 
 export const login = (req,res) =>{
-    res.send("login router");
+    const {email,password} = req.body
+
+    
+    try {
+        res.send("login router");
+    } catch (error) {
+        
+    }
+
+
 }
 
 export const logout = (req,res) =>{
